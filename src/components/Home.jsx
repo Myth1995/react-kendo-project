@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Grid, GridColumn as Column } from "@progress/kendo-react-grid";
+import { Grid, GridColumn as Column, GridRowProps } from "@progress/kendo-react-grid";
 import { process } from "@progress/kendo-data-query";
 import AddForm from "./AddForm.jsx";
 
@@ -63,7 +63,20 @@ class Home extends React.Component {
 //   MyAddCommandCell = (props) => (
 //     <AddCommandCell {...props} enterAdd={this.enterAdd} />
 //   );
-
+  rowRender(
+    trElement: React.ReactElement<HTMLTableRowElement>,
+    props: GridRowProps
+  ) {
+    const available = props.dataItem.Enabled;
+    const normal = { color: "black" };
+    const red = { color: "red" };
+    const trProps: any = { style: available ? normal : red };
+    return React.cloneElement(
+      trElement,
+      { ...trProps },
+      trElement.props.children
+    );
+  }
   render() {
     
     return (
@@ -91,6 +104,7 @@ class Home extends React.Component {
           onExpandChange={this.expandChange}
           expandField="expanded"
           editField="inEdit"
+          rowRender={this.rowRender}
         >
           <Column
             field="ID"
