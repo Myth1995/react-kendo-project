@@ -3,46 +3,50 @@ import * as ReactDOM from "react-dom";
 
 import { Grid, GridColumn as Column } from "@progress/kendo-react-grid";
 import { process } from "@progress/kendo-data-query";
-import EditForm from "./editForm.jsx";
+import AddForm from "./AddForm.jsx";
 
-import products from "../api/mocks.json";
+import userList from "../api/mocks.json";
 
-const EditCommandCell = (props) => {
-  return (
-    <td>
-      <button
-        className="k-button k-primary"
-        onClick={() => props.enterEdit(props.dataItem)}
-      >
-        Edit
-      </button>
-    </td>
-  );
-};
+// const AddCommandCell = (props) => {
+//   return (
+//     <td>
+//       <button
+//         className="k-button k-primary"
+//         onClick={() => props.enterAdd(props.dataItem)}
+//       >
+//         Edit
+//       </button>
+//     </td>
+//   );
+// };
 
 class Home extends React.Component {
   state = {
     openForm: false,
-    editItem: {},
-    data: [...products],
-    result: process(products, {}),
+    addItem: {},
+    data: [...userList],
+    result: process(userList, {}),
     dataState: {},
   };
 
-  enterEdit = (item) => {
-    //   console.log("item: ", item);
-      window.location.href="/" + item.ID;
-    // this.setState({
-    //   openForm: true,
-    //   editItem: item,
-    // });
+  enterAdd = () => {
+    //   window.location.href="/" + item.ID;
+    this.setState({
+      openForm: true,
+      addItem: {},
+    });
   };
 
   handleSubmit = (event) => {
+      console.log("event: ", event);
+      let date = new Date();
+      date = date.toLocaleDateString();
+    this.state.data.push({ID: this.state.data.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
     const newData = this.state.data.map((item, i) => {
-      if (event.ProductID === item.ProductID) {
-        item = { ...event };
-      }
+
+    //   if (event.ID === item.ID) {
+    //     item = { ...event };
+    //   }
       return item;
     });
     this.setState({
@@ -52,29 +56,31 @@ class Home extends React.Component {
     });
   };
 
-  handleCancelEdit = () => {
+  handleCancelAdd = () => {
     this.setState({ openForm: false });
   };
 
-  MyEditCommandCell = (props) => (
-    <EditCommandCell {...props} enterEdit={this.enterEdit} />
-  );
+//   MyAddCommandCell = (props) => (
+//     <AddCommandCell {...props} enterAdd={this.enterAdd} />
+//   );
 
   render() {
     
     return (
-      <>
-        <div className="m-add">
+      <div className="home">
+        <div className="m-add my-5 mr-5">
             <button
                 className="k-button k-primary"
-                onClick={() => this.enterEdit(this.dataItem)}
+                onClick={() => {
+                    this.enterAdd()
+                }}
             >
-            Edit
+            New User
             </button>
         </div>
         <Grid
-        //   style={{ height: "520px" }}
-          resizable={true}
+          style={{ height: "490px" }}
+        //   resizable={true}
           reorderable={true}
           filterable={true}
           sortable={true}
@@ -100,16 +106,16 @@ class Home extends React.Component {
             filterable={false}
           />
           <Column field="Enabled" title="Enabled" filterable={false} />
-          <Column cell={this.MyEditCommandCell} filterable={false} editor="boolean" />
+          {/* <Column cell={this.MyAddCommandCell} filterable={false} editor="boolean" /> */}
         </Grid>
         {this.state.openForm && (
-          <EditForm
-            cancelEdit={this.handleCancelEdit}
+          <AddForm
+            cancelEdit={this.handleCancelAdd}
             onSubmit={this.handleSubmit}
-            item={this.state.editItem}
+            item={this.state.addItem}
           />
         )}
-      </>
+      </div>
     );
   }
 
