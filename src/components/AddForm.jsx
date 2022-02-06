@@ -1,9 +1,6 @@
-import React, {useEffect} from "react";
 import { Dialog } from "@progress/kendo-react-dialogs";
 import { Form, Field, FormElement, FormRenderProps } from "@progress/kendo-react-form";
-import { Checkbox, Input, NumericTextBox } from "@progress/kendo-react-inputs";
-import { DropDownList } from "@progress/kendo-react-dropdowns";
-import { Error } from "@progress/kendo-react-labels";
+import { Checkbox, Input } from "@progress/kendo-react-inputs";
 
 const nameRegex: RegExp = new RegExp(/^[a-z ,.'-]+$/i);
 console.log('Regex: ', nameRegex.test('asafdf'));
@@ -25,24 +22,6 @@ const namePartValidator = (value: string) =>
   : ""
   : "Name is not allowed to include number";
 
-const fullNameValidator = (value: string) => 
-  !value
-  ? "Full Name is required" :
-  nameRegex.test(value) ?
-  value.length > 40
-  ? "Full Name should be at least 40 characters long."
-  : ""
-  : "Name is not allowed to include number";
-
-const NonNegativeNumericInput = (fieldRenderProps) => {
-  const { validationMessage, visited, ...others } = fieldRenderProps;
-  return (
-    <div>
-      <NumericTextBox {...others} />
-      {visited && validationMessage && <Error>{validationMessage}</Error>}
-    </div>
-  );
-};
 
 const AddForm = (props) => {
   console.log("props: ", props);

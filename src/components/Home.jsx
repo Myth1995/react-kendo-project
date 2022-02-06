@@ -4,7 +4,6 @@ import { Grid, GridColumn as Column, GridRowProps, GridPageChangeEvent } from "@
 import { process } from "@progress/kendo-data-query";
 import AddForm from "./AddForm.jsx";
 
-// import userList from "../api/mocks.json";
 const EditCommandCell = (props) => {
   return (
     <td>
@@ -65,8 +64,6 @@ class Home extends React.Component {
   };
 
   handleSubmit = (event) => {
-    //   debugger
-    //   console.log("event: ", event);
     let newData = [];
     if(this.state.formType === "Add") {
         let date = new Date();
