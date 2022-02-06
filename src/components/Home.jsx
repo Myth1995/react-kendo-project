@@ -7,18 +7,18 @@ import AddForm from "./AddForm.jsx";
 
 import userList from "../api/mocks.json";
 
-// const AddCommandCell = (props) => {
-//   return (
-//     <td>
-//       <button
-//         className="k-button k-primary"
-//         onClick={() => props.enterAdd(props.dataItem)}
-//       >
-//         Edit
-//       </button>
-//     </td>
-//   );
-// };
+const EditCommandCell = (props) => {
+  return (
+    <td>
+      <button
+        className="k-button k-primary"
+        onClick={() => props.enterEdit(props.dataItem)}
+      >
+        Detail
+      </button>
+    </td>
+  );
+};
 
 class Home extends React.Component {
   state = {
@@ -29,8 +29,12 @@ class Home extends React.Component {
     dataState: {},
   };
 
+  enterEdit = (item) => {
+    console.log("Eidt: ", item);
+    window.location.href = '/' + item.ID;
+  }
+
   enterAdd = () => {
-    //   window.location.href="/" + item.ID;
     this.setState({
       openForm: true,
       addItem: {},
@@ -38,11 +42,11 @@ class Home extends React.Component {
   };
 
   handleSubmit = (event) => {
-      console.log("event: ", event);
+    //   console.log("event: ", event);
       let date = new Date();
       date = date.toLocaleDateString();
-    this.state.data.push({ID: this.state.data.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
-    const newData = this.state.data.map((item, i) => {
+      this.state.data.push({ID: this.state.data.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
+      const newData = this.state.data.map((item, i) => {
 
     //   if (event.ID === item.ID) {
     //     item = { ...event };
@@ -60,9 +64,9 @@ class Home extends React.Component {
     this.setState({ openForm: false });
   };
 
-//   MyAddCommandCell = (props) => (
-//     <AddCommandCell {...props} enterAdd={this.enterAdd} />
-//   );
+  MyEditCommandCell = (props) => (
+    <EditCommandCell {...props} enterEdit={this.enterEdit} />
+  );
   rowRender(
     trElement: React.ReactElement<HTMLTableRowElement>,
     props: GridRowProps
@@ -120,7 +124,7 @@ class Home extends React.Component {
             filterable={false}
           />
           <Column field="Enabled" title="Enabled" filterable={false} />
-          {/* <Column cell={this.MyAddCommandCell} filterable={false} editor="boolean" /> */}
+          <Column cell={this.MyEditCommandCell} filterable={false} />
         </Grid>
         {this.state.openForm && (
           <AddForm
