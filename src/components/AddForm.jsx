@@ -1,13 +1,38 @@
 import React, {useEffect} from "react";
 import { Dialog } from "@progress/kendo-react-dialogs";
-import { Form, Field, FormElement } from "@progress/kendo-react-form";
+import { Form, Field, FormElement, FormRenderProps } from "@progress/kendo-react-form";
 import { Checkbox, Input, NumericTextBox } from "@progress/kendo-react-inputs";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { Error } from "@progress/kendo-react-labels";
-import products from "../api/mocks.json";
 
-const userNameValidator = (value) => 
-  (value.length > 0 && value.length <= 15) ? "" : "The max length is 15 and Min is at least 0.";
+const nameRegex: RegExp = new RegExp(/^[a-z ,.'-]+$/i);
+console.log('Regex: ', nameRegex.test('asafdf'));
+const userNameValidator = (value: string) => 
+  !value
+  ? "User Name is required" :
+  nameRegex.test(value) ?
+  value.length > 15 
+  ? "User Name should be at least 15 characters long."
+  : ""
+  : "Name is not allowed to include number";
+
+const namePartValidator = (value: string) => 
+  !value
+  ? "Name is required" :
+  nameRegex.test(value) ?
+  value.length > 25 
+  ? "It should be at least 25 characters long."
+  : ""
+  : "Name is not allowed to include number";
+
+const fullNameValidator = (value: string) => 
+  !value
+  ? "Full Name is required" :
+  nameRegex.test(value) ?
+  value.length > 40
+  ? "Full Name should be at least 40 characters long."
+  : ""
+  : "Name is not allowed to include number";
 
 const NonNegativeNumericInput = (fieldRenderProps) => {
   const { validationMessage, visited, ...others } = fieldRenderProps;
@@ -22,20 +47,24 @@ const NonNegativeNumericInput = (fieldRenderProps) => {
 const AddForm = (props) => {
   console.log("props: ", props);
   return (
-    <Dialog title={`Add New User`} onClose={props.cancelEdit}>
+    <Dialog title={props.type === 'Add' ? `Add New User` : `Enable/Disable `+props.item.UserName} onClose={props.cancelEdit}>
       <Form
         onSubmit={props.onSubmit}
         initialValues={props.item}
-        render={(formRenderProps) => (
+        render={(formRenderProps: FormRenderProps) => (
           <FormElement style={{ maxWidth: 650 }}>
             <fieldset className={"k-form-fieldset"}>
+            {props.type === 'Add' ? 
               <div className="mb-3">
                 <Field
                   name={"UserName"}
                   component={Input}
                   label={"User Name"}
+                  validator={userNameValidator}
                 />
               </div>
+              : <></>
+            }
               {props.type === 'Add' ? 
                 <div>
                   <div className="mb-3">
@@ -43,7 +72,7 @@ const AddForm = (props) => {
                       name={"FirstName"}
                       component={Input}
                       label={"First Name"}
-                      // validator={userNameValidator}
+                      validator={namePartValidator}
                     />
                   </div>
                   <div className="mb-3">
@@ -51,20 +80,11 @@ const AddForm = (props) => {
                       name={"LastName"}
                       component={Input}
                       label={"Last Name"}
-                      // validator={userNameValidator}
+                      validator={namePartValidator}
                     />
                   </div>
                 </div> :
-                <div>
-                  <div className="mb-3">
-                    <Field
-                      name={"FullName"}
-                      component={Input}
-                      label={"Full Name"}
-                      // validator={userNameValidator}
-                    />
-                  </div>
-                </div>}
+                <></>}
               <div className="mb-3">
                 <Field
                   name={"Enabled"}
@@ -75,14 +95,22 @@ const AddForm = (props) => {
               </div>
             </fieldset>
             <div className="k-form-buttons">
+              {props.type === 'Add' ?
               <button
                 type={"submit"}
                 className="k-button k-primary"
-                // disabled={!formRenderProps.allowSubmit}
-                // onClick={props.onSubmit}
+                disabled={!formRenderProps.allowSubmit}
               >
                 {props.type}
               </button>
+              : 
+              <button
+                type={"submit"}
+                className="k-button k-primary"
+              >
+                {props.type}
+              </button>
+              }
               <button
                 type={"submit"}
                 className="k-button"

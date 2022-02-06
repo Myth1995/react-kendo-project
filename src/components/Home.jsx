@@ -65,20 +65,21 @@ class Home extends React.Component {
   };
 
   handleSubmit = (event) => {
+    //   debugger
     //   console.log("event: ", event);
     let newData = [];
     if(this.state.formType === "Add") {
         let date = new Date();
         date = date.toLocaleDateString();
-        this.state.data.push({ID: this.state.data.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
-        newData = this.state.data.map((item, i) => {
+        this.props.userList.push({ID: this.props.userList.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
+        newData = this.props.userList.map((item, i) => {
             return item;
         });
     }
     else {
-        newData = this.state.data.map((item, i) => {
+        newData = this.props.userList.map((item, i) => {
             if (event.ID === item.ID) {
-                item = { ...event };
+                item.Enabled = { ...event.Enabled };
             }
             return item;
         });
@@ -120,7 +121,8 @@ class Home extends React.Component {
     this.setState({
       skip: event.page.skip,
       take: event.page.take,
-      result: process(this.state.userList, {skip: event.page.skip, take: event.page.take})
+      result: process(this.props.userList, {skip: event.page.skip, take: event.page.take})
+    //   result: process(pageData, {})
     });
   };
 
