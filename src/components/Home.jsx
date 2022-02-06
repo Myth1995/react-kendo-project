@@ -1,12 +1,10 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import toast, { Toaster } from 'react-hot-toast';
 import { Grid, GridColumn as Column, GridRowProps, GridPageChangeEvent } from "@progress/kendo-react-grid";
 import { process } from "@progress/kendo-data-query";
 import AddForm from "./AddForm.jsx";
 
-import userList from "../api/mocks.json";
-
+// import userList from "../api/mocks.json";
 const EditCommandCell = (props) => {
   return (
     <td>
@@ -33,15 +31,21 @@ interface HomeState {
 
 
 class Home extends React.Component {
+    constructor(props) {
+        super(props);
+
+        console.log("props: ", props);
+    }
+
   state : HomeState = {
     openForm: false,
     formType: "",
     dataItem: {},
-    data: [...userList],
-    result: process(userList.slice(0, 10), {}),
+    data: [this.props.userList],
+    result: process(this.props.userList, {take: 10, skip: 0}),
     dataState: {},
     skip: 0,
-    take: 10
+    take: 10,
   };
 
   enterEdit = (item) => {
@@ -102,7 +106,7 @@ class Home extends React.Component {
     const available = props.dataItem.Enabled;
     const normal = { color: "black" };
     const red = { color: "red" };
-    const trProps: any = { style: available ? normal : red };
+    const trProps: object = { style: available ? normal : red };
     return React.cloneElement(
       trElement,
       { ...trProps },
@@ -113,15 +117,11 @@ class Home extends React.Component {
   pageChange = (event: GridPageChangeEvent) => {
       console.log("pageChange: ", event.page);
     
-    const pageData = userList.slice(event.page.skip, event.page.take + event.page.skip);
     this.setState({
       skip: event.page.skip,
       take: event.page.take,
-      result: process(pageData, {})
+      result: process(this.state.userList, {skip: event.page.skip, take: event.page.take})
     });
-    
-    
-    console.log("pageChange: ", pageData);
   };
 
   render() {
@@ -148,7 +148,7 @@ class Home extends React.Component {
           pageable={true}
           skip={this.state.skip}
           take={this.state.take}
-          total={userList.length}
+          total={this.props.userList.length}
           onPageChange={this.pageChange}
           data={this.state.result}
           onDataStateChange={this.dataStateChange}
