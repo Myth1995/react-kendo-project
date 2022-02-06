@@ -20,13 +20,12 @@ const NonNegativeNumericInput = (fieldRenderProps) => {
 };
 
 const AddForm = (props) => {
-  console.log("props: ", props)
-  let item = {UserName: '', Enabled: false};
+  console.log("props: ", props);
   return (
     <Dialog title={`Add New User`} onClose={props.cancelEdit}>
       <Form
         onSubmit={props.onSubmit}
-        initialValues={item}
+        initialValues={props.item}
         render={(formRenderProps) => (
           <FormElement style={{ maxWidth: 650 }}>
             <fieldset className={"k-form-fieldset"}>
@@ -37,22 +36,35 @@ const AddForm = (props) => {
                   label={"User Name"}
                 />
               </div>
-              <div className="mb-3">
-                <Field
-                  name={"FirstName"}
-                  component={Input}
-                  label={"First Name"}
-                  // validator={userNameValidator}
-                />
-              </div>
-              <div className="mb-3">
-                <Field
-                  name={"LastName"}
-                  component={Input}
-                  label={"Last Name"}
-                  // validator={userNameValidator}
-                />
-              </div>
+              {props.type === 'Add' ? 
+                <div>
+                  <div className="mb-3">
+                    <Field
+                      name={"FirstName"}
+                      component={Input}
+                      label={"First Name"}
+                      // validator={userNameValidator}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <Field
+                      name={"LastName"}
+                      component={Input}
+                      label={"Last Name"}
+                      // validator={userNameValidator}
+                    />
+                  </div>
+                </div> :
+                <div>
+                  <div className="mb-3">
+                    <Field
+                      name={"FullName"}
+                      component={Input}
+                      label={"Full Name"}
+                      // validator={userNameValidator}
+                    />
+                  </div>
+                </div>}
               <div className="mb-3">
                 <Field
                   name={"Enabled"}
@@ -69,7 +81,7 @@ const AddForm = (props) => {
                 // disabled={!formRenderProps.allowSubmit}
                 // onClick={props.onSubmit}
               >
-                Add
+                {props.type}
               </button>
               <button
                 type={"submit"}

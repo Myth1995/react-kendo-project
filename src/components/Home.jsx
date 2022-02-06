@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-
-import { Grid, GridColumn as Column, GridRowProps } from "@progress/kendo-react-grid";
+import toast, { Toaster } from 'react-hot-toast';
+import { Grid, GridColumn as Column, GridRowProps, GridPageChangeEvent } from "@progress/kendo-react-grid";
 import { process } from "@progress/kendo-data-query";
 import AddForm from "./AddForm.jsx";
 
@@ -14,50 +14,78 @@ const EditCommandCell = (props) => {
         className="k-button k-primary"
         onClick={() => props.enterEdit(props.dataItem)}
       >
-        Detail
+        Edit
       </button>
     </td>
   );
 };
 
+interface HomeState {
+    openForm: boolean;
+    formType: string;
+    dataItem: object;
+    data: array;
+    result: any;
+    dataState: object;
+    skip: number;
+    take: number;
+}
+
+
 class Home extends React.Component {
-  state = {
+  state : HomeState = {
     openForm: false,
-    addItem: {},
+    formType: "",
+    dataItem: {},
     data: [...userList],
-    result: process(userList, {}),
+    result: process(userList.slice(0, 10), {}),
     dataState: {},
+    skip: 0,
+    take: 10
   };
 
   enterEdit = (item) => {
-    console.log("Eidt: ", item);
-    window.location.href = '/' + item.ID;
+    this.setState({
+        openForm: true,
+        dataItem: item,
+        formType: "Edit"
+      });
   }
 
   enterAdd = () => {
     this.setState({
       openForm: true,
-      addItem: {},
+      dataItem: {UserName: '', Enabled: false},
+      formType: "Add"
     });
   };
 
   handleSubmit = (event) => {
     //   console.log("event: ", event);
-      let date = new Date();
-      date = date.toLocaleDateString();
-      this.state.data.push({ID: this.state.data.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
-      const newData = this.state.data.map((item, i) => {
-
-    //   if (event.ID === item.ID) {
-    //     item = { ...event };
-    //   }
-      return item;
-    });
+    let newData = [];
+    if(this.state.formType === "Add") {
+        let date = new Date();
+        date = date.toLocaleDateString();
+        this.state.data.push({ID: this.state.data.length + 1, LastLogin: date, FullName: event.FirstName + " " + event.LastName, UserName: event.UserName, Enabled: event.Enabled})
+        newData = this.state.data.map((item, i) => {
+            return item;
+        });
+    }
+    else {
+        newData = this.state.data.map((item, i) => {
+            if (event.ID === item.ID) {
+                item = { ...event };
+            }
+            return item;
+        });
+    }
     this.setState({
       data: newData,
       result: process(newData, this.state.dataState),
       openForm: false,
     });
+
+    toast.success(this.state.formType + " process successfully done!");
   };
 
   handleCancelAdd = () => {
@@ -81,10 +109,26 @@ class Home extends React.Component {
       trElement.props.children
     );
   }
+
+  pageChange = (event: GridPageChangeEvent) => {
+      console.log("pageChange: ", event.page);
+    
+    const pageData = userList.slice(event.page.skip, event.page.take + event.page.skip);
+    this.setState({
+      skip: event.page.skip,
+      take: event.page.take,
+      result: process(pageData, {})
+    });
+    
+    
+    console.log("pageChange: ", pageData);
+  };
+
   render() {
     
     return (
       <div className="home">
+        <div><Toaster toastOptions={{className : 'm-toaster', duration : 3000, style : { fontSize: '12px' }}}/></div>
         <div className="m-add my-5 mr-5">
             <button
                 className="k-button k-primary"
@@ -96,12 +140,16 @@ class Home extends React.Component {
             </button>
         </div>
         <Grid
-          style={{ height: "490px" }}
+          style={{ height: "490px", cursor: "pointer" }}
         //   resizable={true}
           reorderable={true}
           filterable={true}
           sortable={true}
-          pageable={{ pageSizes: true }}
+          pageable={true}
+          skip={this.state.skip}
+          take={this.state.take}
+          total={userList.length}
+          onPageChange={this.pageChange}
           data={this.state.result}
           onDataStateChange={this.dataStateChange}
           {...this.state.dataState}
@@ -109,6 +157,7 @@ class Home extends React.Component {
           expandField="expanded"
           editField="inEdit"
           rowRender={this.rowRender}
+          onRowClick={this.rowClick}
         >
           <Column
             field="ID"
@@ -123,14 +172,15 @@ class Home extends React.Component {
             title="Last Login"
             filterable={false}
           />
-          <Column field="Enabled" title="Enabled" filterable={false} />
+          <Column field="Enabled" title="Enabled" editor="boolean" filterable={false} />
           <Column cell={this.MyEditCommandCell} filterable={false} />
         </Grid>
         {this.state.openForm && (
           <AddForm
             cancelEdit={this.handleCancelAdd}
             onSubmit={this.handleSubmit}
-            item={this.state.addItem}
+            item={this.state.dataItem}
+            type={this.state.formType}
           />
         )}
       </div>
@@ -151,6 +201,10 @@ class Home extends React.Component {
       dataState: this.state.dataState,
     });
   };
+
+  rowClick = (event) => {
+    window.location.href = '/' + event.dataItem.ID;
+  }
 }
 
 export default Home;
